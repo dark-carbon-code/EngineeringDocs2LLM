@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>EngineeringDocs2LLM Converter</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+:root{--bg:#f4f2ef;--sf:#fff;--bd:#e2ddd6;--bds:#cec7bd;--t1:#1b1917;--t2:#58524c;--t3:#98918a;--teal:#0d7377;--tl:#dff0f0;--td:#095456;--red:#b91c3c;--rl:#fef1f2;--green:#047857;--gl:#edfcf5;--amber:#a8520b;--al:#fefaeb;--r:10px;--rs:6px;--f:'Instrument Sans',system-ui,sans-serif;--m:'JetBrains Mono',monospace}
+*{box-sizing:border-box;margin:0;padding:0}body{font-family:var(--f);background:var(--bg);color:var(--t1)}
+.ctr{max-width:920px;margin:0 auto;padding:24px 20px}
+.hdr{display:flex;align-items:center;gap:11px;margin-bottom:2px}.hdr-i{width:40px;height:40px;border-radius:10px;background:var(--teal);display:flex;align-items:center;justify-content:center;color:#fff;font-size:18px;font-weight:800}.hdr h1{font-size:20px;font-weight:700;letter-spacing:-.03em}.hdr em{font-style:normal;color:var(--teal)}
+.sub{font-size:12px;color:var(--t3);margin-left:51px;margin-bottom:6px}
+.api-bar{display:flex;gap:8px;align-items:center;padding:8px 12px;background:var(--sf);border:1px solid var(--bd);border-radius:var(--rs);margin-bottom:14px}.api-bar label{font-size:11.5px;font-weight:600;white-space:nowrap;color:var(--t2)}.api-bar input{flex:1;padding:6px 9px;border:1.5px solid var(--bd);border-radius:4px;font-size:11.5px;font-family:var(--m);outline:none}.api-bar input:focus{border-color:var(--teal)}.api-bar .dot{width:8px;height:8px;border-radius:50%;display:inline-block}.dot-g{background:var(--green)}.dot-r{background:var(--red)}.dot-a{background:var(--amber)}.api-bar .st{font-size:10px;color:var(--t3)}
+.cd{background:var(--sf);border:1px solid var(--bd);border-radius:var(--r);padding:16px 18px;box-shadow:0 1px 2px rgba(0,0,0,.04);margin-bottom:10px}.cd-t{font-size:14px;font-weight:700;margin-bottom:2px}.cd-d{font-size:12px;color:var(--t2);margin-bottom:12px;line-height:1.5}
+.btn{padding:8px 16px;border:none;border-radius:var(--rs);font-size:12px;font-weight:700;font-family:var(--f);cursor:pointer;transition:all .15s}.btn-p{background:var(--teal);color:#fff}.btn-p:hover{background:var(--td)}.btn-p:disabled{opacity:.3;cursor:not-allowed}.btn-s{background:var(--sf);color:var(--t1);border:1.5px solid var(--bd)}.btn-s:hover{border-color:var(--teal);color:var(--teal)}.btn-d{background:var(--rl);color:var(--red);border:none}.brow{display:flex;gap:8px;justify-content:space-between;margin-top:16px}
+.badge{display:inline-block;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700;letter-spacing:.04em;text-transform:uppercase}
+.dz{border:2px dashed var(--bds);border-radius:var(--r);padding:30px 18px;text-align:center;cursor:pointer;transition:all .2s;background:var(--bg)}.dz:hover,.dz.ov{border-color:var(--teal);background:var(--tl)}
+.fi{display:flex;align-items:center;gap:9px;padding:7px 11px;background:var(--sf);border:1px solid var(--bd);border-radius:var(--rs);margin-bottom:4px}.fi-rm{border:none;background:none;cursor:pointer;color:var(--t3);font-size:14px}.fi-rm:hover{color:var(--red)}
+.ext{margin-top:8px;padding:10px;background:var(--bg);border:1px solid var(--bd);border-radius:var(--rs)}.ext-lbl{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--t3);margin-bottom:5px}
+.cap-row{display:flex;gap:4px;flex-wrap:wrap;margin-top:6px}.cap{padding:2px 8px;border-radius:4px;font-size:9.5px;font-weight:600}.cap-y{background:var(--gl);color:var(--green)}.cap-m{background:var(--al);color:var(--amber)}.cap-n{background:var(--rl);color:var(--red)}
+.codeblock{background:#1b1b1b;color:#d4d4d4;border-radius:var(--rs);padding:12px;font-family:var(--m);font-size:10px;line-height:1.6;overflow:auto;max-height:250px;border:1px solid #333;white-space:pre-wrap;word-break:break-word}
+.thumb-row{display:flex;gap:6px;overflow-x:auto;padding:2px 0}.thumb{width:100px;height:75px;border-radius:var(--rs);border:1px solid var(--bd);object-fit:cover;flex-shrink:0}
+.tbl{width:100%;border-collapse:collapse;font-size:10px;font-family:var(--m)}.tbl th{padding:4px 6px;text-align:left;border-bottom:2px solid var(--bd);font-size:9px;font-weight:700;color:var(--t3);text-transform:uppercase;white-space:nowrap}.tbl td{padding:3px 6px;border-bottom:1px solid var(--bd);color:var(--t2);max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dwg-ent{display:flex;align-items:center;gap:7px;padding:5px 9px;background:var(--sf);border:1px solid var(--bd);border-radius:var(--rs);margin-bottom:3px;font-size:11px}
+.chat{display:flex;flex-direction:column;height:480px;background:var(--sf);border:1px solid var(--bd);border-radius:var(--r);overflow:hidden}.chat-bar{padding:7px 12px;background:var(--tl);border-bottom:1px solid var(--bd);font-size:10.5px;color:var(--teal);font-weight:600;display:flex;align-items:center;gap:5px}.chat-msgs{flex:1;overflow-y:auto;padding:12px}.msg{margin-bottom:10px;max-width:88%}.msg.u{margin-left:auto}.msg.a{margin-right:auto}.msg-w{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--t3);margin-bottom:2px}.msg.u .msg-w{text-align:right}.bbl{padding:9px 13px;border-radius:10px;font-size:12px;line-height:1.6;white-space:pre-wrap;word-wrap:break-word}.msg.u .bbl{background:var(--teal);color:#fff;border-bottom-right-radius:3px}.msg.a .bbl{background:#efecea;color:var(--t1);border-bottom-left-radius:3px}.chat-in{display:flex;gap:6px;padding:10px;border-top:1px solid var(--bd);background:var(--bg)}.chat-in input{flex:1;padding:7px 11px;border:1.5px solid var(--bd);border-radius:var(--rs);font-size:12px;font-family:var(--f);outline:none;background:var(--sf)}.chat-in input:focus{border-color:var(--teal)}
+.info-box{padding:10px 14px;border-radius:var(--rs);font-size:11.5px;line-height:1.6;margin-bottom:10px}.info-teal{background:var(--tl);border:1px solid #b5dede;color:var(--td)}.info-amber{background:var(--al);border:1px solid #fde68a;color:var(--amber)}
+.spin{display:inline-block;width:14px;height:14px;border:2px solid var(--tl);border-top-color:var(--teal);border-radius:50%;animation:sp .6s linear infinite}@keyframes sp{to{transform:rotate(360deg)}}
+.hidden{display:none}
+details summary{cursor:pointer;font-size:11.5px;font-weight:600;color:var(--t2);padding:4px 0}
+</style>
+</head>
+<body>
+<div class="ctr">
+
+<!-- Header -->
+<div class="hdr"><div class="hdr-i">⛨</div><h1><em>EngineeringDocs</em>2LLM Converter</h1></div>
+<div class="sub">DWG · DXF · PDF · XLSX · CSV · DOCX → Structured LLM Analysis with Vision</div>
+
+<!-- API Key Bar -->
+<div class="api-bar">
+  <label>Anthropic API Key:</label>
+  <input type="password" id="apiKey" placeholder="sk-ant-..." />
+  <span class="dot dot-r" id="apiDot"></span>
+  <span class="st" id="apiStatus">Not set</span>
+</div>
+
+<!-- Phase 1: Upload -->
+<div id="phase1">
+  <div class="cd">
+    <div class="cd-t">Upload Engineering Documents</div>
+    <div class="cd-d"><b>Native CAD:</b> DWG, DXF (ezdxf extraction). <b>Full support:</b> PDF (text+tables+vision), XLSX/CSV (tables), DOCX/TXT (text), Images (vision).</div>
+    <div class="dz" id="dropzone">
+      <div style="font-size:30px;margin-bottom:6px">📐</div>
+      <div style="font-size:13px;font-weight:600">Drop files here or click to browse</div>
+      <div style="font-size:11px;color:var(--t3);margin-top:3px">DWG · DXF · PDF · PNG · JPG · XLSX · CSV · DOCX · TXT</div>
+    </div>
+    <input type="file" id="fileInput" multiple hidden accept=".dwg,.dxf,.pdf,.png,.jpg,.jpeg,.tiff,.tif,.xlsx,.xls,.csv,.docx,.txt" />
+    <div id="fileList" style="margin-top:8px"></div>
+    <div id="sysStatus" style="margin-top:10px"></div>
+  </div>
+  <div class="brow">
+    <div></div>
+    <button class="btn btn-p" id="extractBtn" disabled>Extract & Analyze →</button>
+  </div>
+</div>
+
+<!-- Phase 2: Results -->
+<div id="phase2" class="hidden">
+  <div id="results"></div>
+  <div class="brow">
+    <button class="btn btn-s" onclick="showPhase(1)">← Add files</button>
+    <button class="btn btn-p" id="chatBtn">Open LLM Analysis →</button>
+  </div>
+</div>
+
+<!-- Phase 3: Chat -->
+<div id="phase3" class="hidden">
+  <div class="chat">
+    <div class="chat-bar"><span class="dot dot-g"></span><span id="chatBarText">Ready</span></div>
+    <div class="chat-msgs" id="chatMsgs"></div>
+    <div class="chat-in">
+      <input id="chatInput" placeholder="Ask about your engineering documents..." />
+      <button class="btn btn-p" id="sendBtn">Send</button>
+    </div>
+  </div>
+  <div class="brow" style="margin-top:10px">
+    <button class="btn btn-s" onclick="showPhase(2)">← Extraction</button>
+    <button class="btn btn-d" onclick="clearAll()">Clear All & Start Over</button>
+  </div>
+</div>
+
+<!-- Footer -->
+<div style="margin-top:28px;padding-top:10px;border-top:1px solid var(--bd);font-size:10px;color:var(--t3);font-family:var(--m);display:flex;justify-content:space-between">
+  <span>EngineeringDocs2LLM Converter v1.0</span>
+  <span id="footerStatus"></span>
+</div>
+
+</div>
+
+<script>
+// ─── State ───
+let files = [];
+let extractedFiles = [];
+let chatHistory = [];
+
+const API = '';  // Same origin
+
+// ─── DOM ───
+const $=s=>document.querySelector(s);
+const $$=s=>document.querySelectorAll(s);
+
+// API key
+const apiKeyInput = $('#apiKey');
+const apiDot = $('#apiDot');
+const apiStatusEl = $('#apiStatus');
+
+apiKeyInput.addEventListener('input', () => {
+  const k = apiKeyInput.value.trim();
+  if (k.startsWith('sk-ant-') && k.length > 20) {
+    apiDot.className = 'dot dot-g';
+    apiStatusEl.textContent = 'Key set';
+  } else if (k.length > 0) {
+    apiDot.className = 'dot dot-a';
+    apiStatusEl.textContent = 'Invalid format';
+  } else {
+    apiDot.className = 'dot dot-r';
+    apiStatusEl.textContent = 'Not set';
+  }
+});
+
+// Load saved key
+const savedKey = (() => { try { return window.name || ''; } catch(e) { return ''; } })();
+if (savedKey.startsWith('sk-ant-')) { apiKeyInput.value = savedKey; apiKeyInput.dispatchEvent(new Event('input')); }
+apiKeyInput.addEventListener('change', () => { try { window.name = apiKeyInput.value.trim(); } catch(e){} });
+
+// Phase navigation
+function showPhase(n) {
+  $('#phase1').classList.toggle('hidden', n!==1);
+  $('#phase2').classList.toggle('hidden', n!==2);
+  $('#phase3').classList.toggle('hidden', n!==3);
+}
+
+// ─── File Upload ───
+const dz = $('#dropzone');
+const fi = $('#fileInput');
+
+dz.onclick = () => fi.click();
+dz.ondragover = e => { e.preventDefault(); dz.classList.add('ov'); };
+dz.ondragleave = () => dz.classList.remove('ov');
+dz.ondrop = e => { e.preventDefault(); dz.classList.remove('ov'); addFiles(e.dataTransfer.files); };
+fi.onchange = e => { addFiles(e.target.files); e.target.value=''; };
+
+const icons = {dwg:'📐',dxf:'📐',pdf:'📕',png:'🖼',jpg:'🖼',jpeg:'🖼',tiff:'🖼',xlsx:'📗',xls:'📗',csv:'📊',docx:'📘',txt:'📝'};
+
+function addFiles(newFiles) {
+  for (const f of newFiles) files.push(f);
+  renderFileList();
+}
+
+function removeFile(idx) {
+  files.splice(idx, 1);
+  renderFileList();
+}
+
+function renderFileList() {
+  const el = $('#fileList');
+  el.innerHTML = files.map((f, i) => {
+    const ext = f.name.split('.').pop().toLowerCase();
+    const sz = f.size > 1048576 ? (f.size/1048576).toFixed(1)+' MB' : (f.size/1024).toFixed(1)+' KB';
+    return `<div class="fi"><span style="font-size:17px">${icons[ext]||'📄'}</span><div style="flex:1"><div style="font-size:12px;font-weight:600">${f.name}</div><div style="font-size:10px;color:var(--t3);font-family:var(--m)">${sz}</div></div><button class="fi-rm" onclick="removeFile(${i})">✕</button></div>`;
+  }).join('');
+  $('#extractBtn').disabled = files.length === 0;
+  $('#footerStatus').textContent = `${files.length} files`;
+}
+
+// Check system status
+fetch(API+'/api/status').then(r=>r.json()).then(d=>{
+  const lines = [];
+  lines.push(`ezdxf: ${d.ezdxf?'<span style="color:var(--green)">✓ Available</span>':'<span style="color:var(--red)">✗ Not installed</span>'}`);
+  lines.push(`pdfplumber: ${d.pdfplumber?'<span style="color:var(--green)">✓ Available</span>':'<span style="color:var(--red)">✗ Not installed</span>'}`);
+  $('#sysStatus').innerHTML = `<div style="font-size:10.5px;color:var(--t3);margin-top:6px">${lines.join(' · ')}</div>`;
+}).catch(()=>{});
+
+// ─── Extraction ───
+$('#extractBtn').onclick = async () => {
+  $('#extractBtn').disabled = true;
+  $('#extractBtn').innerHTML = '<span class="spin"></span> Extracting...';
+  extractedFiles = [];
+
+  for (const f of files) {
+    const formData = new FormData();
+    formData.append('file', f);
+    try {
+      const resp = await fetch(API+'/api/upload', { method:'POST', body: formData });
+      const data = await resp.json();
+      if (data.error && !data.format) {
+        extractedFiles.push({ filename: f.name, format: 'error', error: data.error });
+      } else {
+        extractedFiles.push(data);
+      }
+    } catch(e) {
+      extractedFiles.push({ filename: f.name, format: 'error', error: e.message });
+    }
+  }
+
+  renderResults();
+  showPhase(2);
+  $('#extractBtn').innerHTML = 'Extract & Analyze →';
+  $('#extractBtn').disabled = false;
+};
+
+function renderResults() {
+  const el = $('#results');
+  el.innerHTML = extractedFiles.map(f => {
+    const ext = (f.filename||'').split('.').pop().toLowerCase();
+    const fmt = f.format || 'unknown';
+    const stats = f.stats || {};
+    let caps = '';
+    let body = '';
+
+    if (fmt === 'dxf' || fmt === 'dwg_converted') {
+      caps = `<span class="cap cap-y">✓ Equipment: ${stats.total_equipment||0}</span>
+              <span class="cap cap-y">✓ Instruments: ${stats.total_instruments||0}</span>
+              <span class="cap cap-y">✓ Connections: ${stats.total_connections||0}</span>
+              <span class="cap cap-y">✓ Layers: ${stats.active_layers||0} active</span>
+              <span class="cap cap-y">✓ Annotations: ${stats.total_annotations||0}</span>`;
+
+      // Equipment list
+      const equip = f.equipment || [];
+      const instr = f.instruments || [];
+      const conns = f.connections || [];
+      let equipHtml = equip.slice(0,15).map(e =>
+        `<div class="dwg-ent"><span>⚙️</span><div style="flex:1"><b style="color:var(--teal);font-family:var(--m);font-size:11px">${e.tag||'no tag'}</b> <span style="font-size:10px;color:var(--t3)">${e.type} | ${e.block_name} | ${e.layer}</span></div></div>`
+      ).join('');
+      if (equip.length > 15) equipHtml += `<div style="font-size:10px;color:var(--t3);padding:3px">+${equip.length-15} more</div>`;
+
+      let connHtml = conns.slice(0,15).map(c =>
+        `<div style="font-size:10.5px;padding:2px 0;font-family:var(--m);color:var(--t2)">${c.from} → ${c.to} <span style="color:var(--t3)">(${c.line_layer})</span></div>`
+      ).join('');
+
+      body = `<div class="ext" style="border-left:3px solid var(--teal);background:var(--tl)">
+        <div class="ext-lbl" style="color:var(--teal)">Extracted Equipment (${equip.length})</div>${equipHtml}
+        ${instr.length ? `<div class="ext-lbl" style="color:var(--teal);margin-top:8px">Instruments (${instr.length})</div>${instr.slice(0,10).map(i=>`<div class="dwg-ent"><span>📡</span><b style="color:var(--teal);font-family:var(--m);font-size:11px">${i.tag||'no tag'}</b> <span style="font-size:10px;color:var(--t3)">${i.block_name}</span></div>`).join('')}` : ''}
+        ${conns.length ? `<div class="ext-lbl" style="color:var(--teal);margin-top:8px">Connectivity (${conns.length} connections)</div>${connHtml}` : '<div style="font-size:11px;color:var(--amber);margin-top:6px">△ No connectivity detected — check proximity threshold or drawing style</div>'}
+      </div>`;
+
+    } else if (fmt === 'dwg') {
+      caps = `<span class="cap cap-m">△ DWG needs ODA conversion</span>`;
+      body = `<div class="info-box info-amber">${f.message || 'DWG file detected. Install ODA File Converter for full extraction, or save as DXF from AutoCAD.'}</div>`;
+
+    } else if (fmt === 'pdf') {
+      const pages = f.pages || [];
+      const hasText = pages.some(p => p.has_text);
+      caps = `<span class="cap cap-y">✓ ${stats.total_pages||0} pages rendered</span>
+              <span class="cap ${hasText?'cap-y':'cap-n'}">${hasText?'✓':'✗'} Text layer</span>
+              <span class="cap cap-y">✓ ${stats.total_tables||0} tables</span>
+              <span class="cap cap-m">△ Vision analysis</span>`;
+      
+      let thumbs = pages.filter(p=>p.thumbnail_base64).map(p =>
+        `<img class="thumb" src="data:image/jpeg;base64,${p.thumbnail_base64}" title="Page ${p.page_num}" />`
+      ).join('');
+      
+      body = `<div class="ext"><div class="ext-lbl">Pages → LLM Vision</div><div class="thumb-row">${thumbs}</div></div>`;
+      
+      if (hasText) {
+        const txt = (f.full_text||'').slice(0,1500);
+        body += `<details><summary>View extracted text (${(f.full_text||'').length.toLocaleString()} chars)</summary><div class="codeblock">${escHtml(txt)}</div></details>`;
+      }
+
+    } else if (fmt === 'xlsx' || fmt === 'csv') {
+      const hdrs = f.headers || [];
+      const rows = f.rows || [];
+      caps = `<span class="cap cap-y">✓ ${f.row_count||0} rows × ${hdrs.length} cols</span>`;
+      let tblHtml = `<table class="tbl"><thead><tr>${hdrs.map(h=>`<th>${escHtml(h)}</th>`).join('')}</tr></thead><tbody>`;
+      rows.slice(0,8).forEach(r => { tblHtml += `<tr>${(Array.isArray(r)?r:hdrs.map(h=>r[h]||'')).map(c=>`<td>${escHtml(String(c).slice(0,50))}</td>`).join('')}</tr>`; });
+      tblHtml += `</tbody></table>`;
+      if (rows.length > 8) tblHtml += `<div style="font-size:10px;color:var(--t3);padding:4px">+${rows.length-8} more rows</div>`;
+      body = `<div class="ext"><div class="ext-lbl">Parsed Data</div><div style="overflow-x:auto">${tblHtml}</div></div>`;
+
+    } else if (fmt === 'docx' || fmt === 'txt') {
+      caps = `<span class="cap cap-y">✓ ${stats.total_chars||0} chars</span>`;
+      body = `<div class="ext"><div class="ext-lbl">Extracted Text</div><div class="codeblock">${escHtml((f.full_text||'').slice(0,1500))}</div></div>`;
+
+    } else if (fmt === 'image') {
+      caps = `<span class="cap cap-y">✓ Image → Vision</span>`;
+      body = `<div class="ext"><div class="ext-lbl">${stats.width||'?'}×${stats.height||'?'}px</div></div>`;
+
+    } else if (fmt === 'error') {
+      caps = `<span class="cap cap-n">✗ Error</span>`;
+      body = `<div class="info-box" style="background:var(--rl);border:1px solid #fecdd3;color:var(--red)">${escHtml(f.error||'Unknown error')}</div>`;
+    }
+
+    return `<div class="cd">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+        <span style="font-size:18px">${icons[ext]||'📄'}</span>
+        <div style="flex:1"><div style="font-size:13px;font-weight:700">${escHtml(f.filename||'')}</div>
+        <div style="font-size:10px;color:var(--t3)">${fmt}</div></div>
+        <span class="badge" style="background:${fmt==='dxf'||fmt==='dwg_converted'?'var(--tl)':fmt==='pdf'?'var(--rl)':fmt==='xlsx'||fmt==='csv'?'var(--gl)':'var(--al)'};color:${fmt==='dxf'||fmt==='dwg_converted'?'var(--teal)':fmt==='pdf'?'var(--red)':fmt==='xlsx'||fmt==='csv'?'var(--green)':'var(--amber)'}">${fmt.toUpperCase()}</span>
+        ${f.file_id ? `<button class="btn btn-s" style="padding:4px 10px;font-size:10px" onclick="exportFile('${f.file_id}')">Export JSON</button>` : ''}
+      </div>
+      <div class="cap-row">${caps}</div>
+      ${body}
+    </div>`;
+  }).join('');
+}
+
+function escHtml(s) { const d=document.createElement('div'); d.textContent=s; return d.innerHTML; }
+
+async function exportFile(fileId) {
+  const resp = await fetch(API+`/api/export/${fileId}`);
+  const data = await resp.json();
+  const blob = new Blob([JSON.stringify(data.data, null, 2)], {type:'application/json'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+  a.download = `${fileId}.extracted.json`; a.click();
+}
+
+// ─── Chat ───
+$('#chatBtn').onclick = () => {
+  chatHistory = [];
+  const el = $('#chatMsgs');
+  
+  const cadCount = extractedFiles.filter(f => f.format==='dxf'||f.format==='dwg_converted').length;
+  const pdfCount = extractedFiles.filter(f => f.format==='pdf').length;
+  const tblCount = extractedFiles.filter(f => f.format==='xlsx'||f.format==='csv').length;
+  
+  let welcome = `I've ingested ${extractedFiles.length} document(s).\n\n`;
+  if (cadCount) welcome += `📐 ${cadCount} CAD file(s) with structured entity data — equipment, instruments, connectivity, layers.\n`;
+  if (pdfCount) welcome += `📕 ${pdfCount} PDF(s) with rendered pages for vision analysis.\n`;
+  if (tblCount) welcome += `📊 ${tblCount} spreadsheet(s) with full tabular data.\n`;
+  welcome += `\nWhat would you like me to analyze?`;
+  
+  el.innerHTML = renderMsg('a', welcome);
+  
+  const barParts = [`${extractedFiles.length} docs`];
+  if (cadCount) barParts.push(`${cadCount} CAD`);
+  if (pdfCount) barParts.push(`${pdfCount} PDF`);
+  $('#chatBarText').textContent = barParts.join(' · ') + ' · Claude Sonnet';
+  
+  showPhase(3);
+  $('#chatInput').focus();
+};
+
+function renderMsg(role, text) {
+  return `<div class="msg ${role==='user'?'u':'a'}"><div class="msg-w">${role==='user'?'You':'EngineeringDocs2LLM'}</div><div class="bbl">${escHtml(text)}</div></div>`;
+}
+
+$('#sendBtn').onclick = sendMessage;
+$('#chatInput').onkeydown = e => { if (e.key==='Enter'&&!e.shiftKey) { e.preventDefault(); sendMessage(); } };
+
+async function sendMessage() {
+  const msg = $('#chatInput').value.trim();
+  const key = apiKeyInput.value.trim();
+  if (!msg) return;
+  if (!key || !key.startsWith('sk-ant-')) {
+    alert('Please enter a valid Anthropic API key in the settings bar above.');
+    return;
+  }
+
+  $('#chatInput').value = '';
+  $('#chatMsgs').innerHTML += renderMsg('user', msg);
+  
+  // Loading indicator
+  const loadId = 'load_'+Date.now();
+  $('#chatMsgs').innerHTML += `<div id="${loadId}" class="msg a"><div class="msg-w">EngineeringDocs2LLM</div><div class="bbl" style="color:var(--t3)"><span class="spin"></span> Analyzing...</div></div>`;
+  scrollChat();
+  
+  $('#sendBtn').disabled = true;
+
+  try {
+    const resp = await fetch(API+'/api/chat', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        api_key: key,
+        message: msg,
+        history: chatHistory,
+      }),
+    });
+    const data = await resp.json();
+    
+    // Remove loading
+    document.getElementById(loadId)?.remove();
+    
+    if (data.error) {
+      $('#chatMsgs').innerHTML += renderMsg('a', `Error: ${data.error}`);
+    } else {
+      chatHistory.push({role:'user', content:msg});
+      chatHistory.push({role:'assistant', content:data.reply});
+      $('#chatMsgs').innerHTML += renderMsg('a', data.reply);
+    }
+  } catch(e) {
+    document.getElementById(loadId)?.remove();
+    $('#chatMsgs').innerHTML += renderMsg('a', `Connection error: ${e.message}`);
+  }
+
+  $('#sendBtn').disabled = false;
+  scrollChat();
+  $('#chatInput').focus();
+}
+
+function scrollChat() {
+  const el = $('#chatMsgs');
+  el.scrollTop = el.scrollHeight;
+}
+
+async function clearAll() {
+  if (!confirm('Clear all uploaded files and start over?')) return;
+  await fetch(API+'/api/clear', {method:'POST'});
+  files = []; extractedFiles = []; chatHistory = [];
+  renderFileList();
+  showPhase(1);
+}
+</script>
+</body>
+</html>
